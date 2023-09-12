@@ -1,25 +1,26 @@
 #include <stdio.h>
-#include "mod.h"
-
-struct num_list {
-    int data;
-    int count;
-    struct num_list *next;
-};
+#include "num_work.h"
 
 int main()
 {
     struct num_list *first, *ptr;
     first = NULL;
     ptr = NULL;
-    int i;
+    int i, res = 0;
+
     while((i = getchar()) != EOF) {
-        if ((ptr = is_num_list(i, first))) {
+        if(i > '0' && i < '9') {
+            res = res * 10 + i - '0';
+        } else {
+            break;
+        }
+/*        if ((ptr = is_num_list(i, first))) {
             ptr->count++;
         } else {
-            add_num_list(i, first);
-        }
+        */
+/*        }*/
     }
+    first = add_num_list(res, first);
     show_num_list(first);
     return 0;
 }
