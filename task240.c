@@ -3,24 +3,22 @@
 
 int main()
 {
-    struct num_list *first, *ptr;
-    first = NULL;
-    ptr = NULL;
-    int i, res = 0;
-
+    struct num_list *first, *ptr, *last;
+    first = last = ptr = NULL;
+    long res = 0;
+    int i;
     while((i = getchar()) != EOF) {
         if(i > '0' && i < '9') {
             res = res * 10 + i - '0';
         } else {
-            break;
+            if ((ptr = is_num_list(res, first))) {
+                ptr->count++;
+            } else {
+                first = add_num_list(res, first);
+                res = 0;
+            }
         }
-/*        if ((ptr = is_num_list(i, first))) {
-            ptr->count++;
-        } else {
-        */
-/*        }*/
     }
-    first = add_num_list(res, first);
     show_num_list(first);
     return 0;
 }
