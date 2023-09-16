@@ -11,11 +11,11 @@ int main()
         if(i >= '0' && i <= '9') {
             res = res * 10 + i - '0';
         } else {
-            if ((ptr = is_num_list(res, first))) {
+            if (first && (ptr = is_num_list(res, first))) {
                 ptr->count++;
             } else {
                 last = add_num_list(res, last);
-                if(!first) {
+                if (!first) {
                     first = last;
                 }
             }
