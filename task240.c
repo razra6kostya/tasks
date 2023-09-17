@@ -23,5 +23,6 @@ int main()
         }
     }
     show_num_list(first);
+    clearup(first);
     return 0;
 }
