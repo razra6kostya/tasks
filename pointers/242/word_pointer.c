@@ -7,6 +7,9 @@ int is_letter(int let)
 
 enum begin_end situation(int pl, int l)
 {
+    if (is_letter(pl) && is_letter(l)) {
+        return continues;
+    }
     if (pl == '\n' && is_letter(l)) {
         return begin_string;
     }
@@ -19,4 +22,22 @@ enum begin_end situation(int pl, int l)
     if (is_letter(pl) && l == ' ') {
         return end_word;
     }
+    return continues;
 }
+
+void print_reverse(struct wordptr *first)
+{
+    while (first) {
+        while (first->word) {
+            putchar(first->word->c);
+            first->word = first->word->next;
+        }
+        first = first->next;
+    }
+}
+
+void cleanup(struct wordptr *first)
+{
+    ;
+}
+
