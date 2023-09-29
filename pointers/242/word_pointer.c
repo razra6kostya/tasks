@@ -38,6 +38,15 @@ void print_reverse(struct wordptr *first)
 
 void cleanup(struct wordptr *first)
 {
-    ;
+    while (first) {
+        while (first->word) {
+            struct charptr *tmp = first->word;
+            first->word = first->word->next;
+            free(tmp);
+        }
+        struct wordptr *tmpw = first;
+        first = first->next;
+        free(tmpw);
+    }
 }
 

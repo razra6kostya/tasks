@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #ifndef WORD_POINTER
 #define WORD_POINTER
 

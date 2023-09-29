@@ -4,51 +4,45 @@
 
 int main()
 {
-    struct wordptr *first = NULL, *last = NULL, *tmpw;
-    struct charptr *tmp, *pcur;
-    int prev_let = '\n', let;
+    struct wordptr *first = NULL, *tmpw;
+    struct charptr *curc = NULL;
+    int prev_let = '\n', let, spc;
     while ((let = getchar()) != EOF) {
+
         switch(situation(prev_let, let)) {
         case begin_string:
-            first = malloc(sizeof(struct wordptr));
-            first->next = NULL;
-            first->word = malloc(sizeof(struct charptr));
-            first->word->c = let;
-            first->word->next = NULL;
-            last = first;
-            pcur = last->word;
-            break;
-        case continues:
-            tmp = malloc(sizeof(struct charptr));
-            tmp->c = let;
-            tmp->next = NULL;
-            pcur->next = tmp;
-            pcur = pcur->next;
-            break;
+            spc = '\n';
+            /* first word -> last word ' ' -> '\n' */
         case begin_word:
             tmpw = malloc(sizeof(struct wordptr));
-            tmpw->word = malloc(sizeof(struct charptr));
-            tmpw->word->c = let;
-            tmpw->word->next = NULL;
+            tmpw->word = NULL;
+            curc = tmpw->word;
             tmpw->next = first;
             first = tmpw;
-            pcur = first->word;
+        case continues:
+            if(!curc) {
+                curc = malloc(sizeof(struct charptr));
+                first->word = curc;
+            } else {
+                curc->next = malloc(sizeof(struct charptr));
+                curc = curc->next;
+            }
+            curc->c = let;
+            curc->next = NULL;
             break;
         case end_word:
-            tmp = malloc(sizeof(struct charptr));
-            tmp->c = ' ';
-            tmp->next = NULL;
-            pcur->next = tmp;
-            pcur = pcur->next;
+            curc->next = malloc(sizeof(struct charptr));
+            curc->next->c = spc;
+            curc->next->next = NULL;
+            spc = ' ';
             break;
         case end_string:
-            tmp = malloc(sizeof(struct charptr));
-            tmp->c = '\n';
-            tmp->next = NULL;
-            pcur->next = tmp;
-            pcur = pcur->next;
-            /*print_reverse(first);
-            cleanup(first);*/
+            curc->next = malloc(sizeof(struct charptr));
+            curc->next->c = spc;
+            curc->next->next = NULL;
+            print_reverse(first);
+            cleanup(first);
+            first = NULL; 
             break;
         default:
             ;
@@ -56,6 +50,9 @@ int main()
 
         prev_let = let;
     }
-    print_reverse(first);
+    /*if (let == EOF) {
+        print_reverse(first);
+        cleanup(first);
+    }*/
     return 0;
 }
