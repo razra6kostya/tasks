@@ -25,11 +25,21 @@ enum begin_end situation(int pl, int l)
     return continues;
 }
 
-void print_reverse_and_cleanup(struct wordptr *cur)
+void print_reverse(struct wordptr *cur)
 {
     while (cur) {
         while (cur->word) {
             putchar(cur->word->c);
+            cur->word = cur->word->next;
+        }
+        cur = cur->next;
+    }
+}
+
+void cleanup(struct wordptr *cur)
+{
+    while (cur) {
+        while (cur->word) {
             struct charptr *tmp = cur->word;
             cur->word = cur->word->next;
             free(tmp);

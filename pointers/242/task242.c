@@ -7,16 +7,17 @@ int main()
     struct wordptr *first = NULL, *tmpw;
     struct charptr *curc = NULL;
     int prev_let = '\n', let, spc;
+
     while ((let = getchar()) != EOF) {
 
         switch(situation(prev_let, let)) {
         case begin_string:
+            first = NULL; 
             spc = '\n';
             /* first word -> last word ' ' -> '\n' */
         case begin_word:
             tmpw = malloc(sizeof(struct wordptr));
-            tmpw->word = NULL;
-            curc = tmpw->word;
+            curc = tmpw->word = NULL;
             tmpw->next = first;
             first = tmpw;
         case continues:
@@ -40,9 +41,7 @@ int main()
             curc->next = malloc(sizeof(struct charptr));
             curc->next->c = spc;
             curc->next->next = NULL;
-            print_reverse(first);
-            cleanup(first);
-            first = NULL; 
+            print_reverse_and_cleanup(first);
             break;
         default:
             ;
@@ -50,9 +49,5 @@ int main()
 
         prev_let = let;
     }
-    /*if (let == EOF) {
-        print_reverse(first);
-        cleanup(first);
-    }*/
     return 0;
 }

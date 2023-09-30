@@ -19,7 +19,6 @@ struct wordptr {
 
 int is_letter(int let);
 enum begin_end situation(int pl, int l);
-void print_reverse(struct wordptr *first);
-void cleanup(struct wordptr *first);
+void print_reverse_and_cleanup(struct wordptr *cur);
 
 #endif
