@@ -3,6 +3,12 @@
 #ifndef WORD_POINTER
 #define WORD_POINTER
 
+struct listptr {
+    struct wordptr *first;
+    struct wordptr *last;
+    int count_word;
+};
+
 struct charptr {
     char letter;
     struct charptr *next;

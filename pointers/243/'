@@ -49,21 +49,22 @@ int main()
                 tmp_word= tmp_word->next;
             }
             /* print */
-            int i, j;
-            int count_word = list->count_word;
+            struct wordptr *tmp_w = list->first;
+            
+            for (int i=0; i<max_count_letter; i++) {
 
-            for (i=0; i<max_count_letter; i++) {
-                struct wordptr *target_word = list->first;
-                for(j=0; j<count_word; j++){
-                    if (target_word->first_char) {
-                        putchar(target_word->first_char->letter);
-                        target_word->first_char = target_word->first_char->next;
+                for(int j=0; j<list->count_word; j++){
+                    struct charptr *tmp_ch = tmp_w->first_char;
+                    if (tmp_ch) {
+                        char ch = tmp_ch->letter;
+                        putchar(ch);
                     } else {
                         putchar(32);
                     }
-                    target_word = target_word->next;
+                    tmp_w = tmp_w->next;
                 }
                 putchar(10);
+                tmp_w = list->first;
             }
             /* cleanup */
             while (list->first) {
