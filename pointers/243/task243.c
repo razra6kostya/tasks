@@ -40,14 +40,7 @@ int main()
         }
         if (isgraph(prev_letter) && letter == '\n') {
             /* search long word */
-            int max_count_letter = 0;
-            struct wordptr *tmp_word = list->first;
-            while (tmp_word) {
-                if (tmp_word->count_letter > max_count_letter) {
-                    max_count_letter = tmp_word->count_letter;
-                }
-                tmp_word= tmp_word->next;
-            }
+            int max_count_letter = max_letter(list->first);
             /* print */
             print_vertical(list, max_count_letter);
             /* cleanup */
