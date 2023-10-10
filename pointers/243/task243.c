@@ -8,12 +8,12 @@ int main()
     int c;
     char letter, prev_letter = '\n';
     struct listptr *list = NULL;
-    list = malloc(sizeof(struct listptr));
     /* filling list text */ 
     while ((c = getchar()) != EOF) {
         letter = (char)c;
         if (isspace(prev_letter) && isgraph(letter)) {
             if (prev_letter == '\n' && isgraph(letter)) {
+                list = malloc(sizeof(struct listptr));
                 list->first = NULL;
             }
             if (!list->first) {
@@ -52,6 +52,7 @@ int main()
                 free(tmp);
             }
             free(list);
+            list = NULL;
         }
         prev_letter = letter;
     }
