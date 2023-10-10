@@ -7,7 +7,7 @@ int main()
 {
     int c;
     char letter, prev_letter = '\n';
-    struct listptr *list;
+    struct listptr *list = NULL;
     list = malloc(sizeof(struct listptr));
     /* filling list text */ 
     while ((c = getchar()) != EOF) {
@@ -18,6 +18,7 @@ int main()
             }
             if (!list->first) {
                 list->first = malloc(sizeof(struct wordptr));
+                list->count_word = 0;
                 list->last = list->first;
             } else {
                 list->last->next = malloc(sizeof(struct wordptr));
@@ -44,19 +45,15 @@ int main()
             /* print */
             print_vertical(list, max_count_letter);
             /* cleanup */
+            
             while (list->first) {
-                while (list->first->first_char) {
-                    struct charptr *tmp = list->first->first_char;
-                    list->first->first_char = list->first->first_char->next;
-                    free(tmp);
-                }
                 struct wordptr *tmp = list->first;
                 list->first = list->first->next;
                 free(tmp);
             }
+            free(list);
         }
         prev_letter = letter;
     }
-    free(list);
     return 0;
 }
