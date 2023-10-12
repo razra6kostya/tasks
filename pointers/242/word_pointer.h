@@ -1,24 +1,19 @@
-#include <stdio.h>
-#include <stdlib.h>
 #ifndef WORD_POINTER
 #define WORD_POINTER
 
-enum begin_end { 
-    continues, begin_string, end_string, begin_word, end_word 
+struct listptr {
+    struct wordptr *first;
 };
 
 struct charptr {
-    int c;
+    char letter;
     struct charptr *next;
 };
 
 struct wordptr {
-    struct charptr *word;
+    struct charptr *first_char;
+    struct charptr *last_char;
     struct wordptr *next;
 };
-
-int is_letter(int let);
-enum begin_end situation(int pl, int l);
-void print_reverse_and_cleanup(struct wordptr *cur);
 
 #endif

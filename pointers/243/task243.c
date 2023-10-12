@@ -43,9 +43,23 @@ int main()
             /* search long word */
             int max_count_letter = max_letter(list->first);
             /* print */
-            print_vertical(list, max_count_letter);
+            for (i=0; i<max_count_letter; i++) {
+        	struct wordptr *target_word = list->first;
+        	for(j=0; j<count_word; j++){
+            	    if (target_word->first_char) {
+                	struct charptr **pp = &target_word->first_char;
+                	struct charptr *del_ch = target_word->first_char;
+                	putchar(target_word->first_char->letter);
+                	*pp = (*pp)->next;
+                	free(del_ch);
+            	    } else {
+                	putchar(32);
+             	    }
+            	    target_word = target_word->next;
+        	}
+        	putchar(10);
+    	    }
             /* cleanup */
-            
             while (list->first) {
                 struct wordptr *tmp = list->first;
                 list->first = list->first->next;

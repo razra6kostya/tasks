@@ -1,53 +1,62 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "word_pointer.h"
 
 int main()
 {
-    struct wordptr *first = NULL, *tmpw;
-    struct charptr *curc = NULL;
-    int prev_let = '\n', let, spc;
-
-    while ((let = getchar()) != EOF) {
-
-        switch(situation(prev_let, let)) {
-        case begin_string:
-            first = NULL; 
-            spc = '\n';
-            /* first word -> last word ' ' -> '\n' */
-        case begin_word:
-            tmpw = malloc(sizeof(struct wordptr));
-            curc = tmpw->word = NULL;
-            tmpw->next = first;
-            first = tmpw;
-        case continues:
-            if(!curc) {
-                curc = malloc(sizeof(struct charptr));
-                first->word = curc;
-            } else {
-                curc->next = malloc(sizeof(struct charptr));
-                curc = curc->next;
+    int c;
+    char letter, prev_letter = '\n', spc = '\n';
+    struct listptr *list = NULL;
+    /* filling list text */ 
+    while ((c = getchar()) != EOF) {
+        letter = (char)c;
+        /* begin word*/
+        if (isspace(prev_letter) && isgraph(letter)) {
+            /* begin string */
+            if (prev_letter == '\n') {
+                list = malloc(sizeof(struct listptr));
+                list->first = NULL;
+                spc = '\n';
             }
-            curc->c = let;
-            curc->next = NULL;
-            break;
-        case end_word:
-            curc->next = malloc(sizeof(struct charptr));
-            curc->next->c = spc;
-            curc->next->next = NULL;
-            spc = ' ';
-            break;
-        case end_string:
-            curc->next = malloc(sizeof(struct charptr));
-            curc->next->c = spc;
-            curc->next->next = NULL;
-            print_reverse_and_cleanup(first);
-            break;
-        default:
-            ;
+            struct wordptr *tmp = malloc(sizeof(struct wordptr));
+            tmp->first_char = tmp->last_char = NULL;
+            tmp->next = list->first;
+            list->first = tmp;
+                
+            list->first->first_char = malloc(sizeof(struct charptr));
+            list->first->first_char->letter = letter;
+            list->first->first_char->next= NULL;
+            list->first->last_char = list->first->first_char;
         }
-
-        prev_let = let;
-    }
+        if (isgraph(prev_letter) && isgraph(letter)) {
+            list->first->last_char->next = malloc(sizeof(struct charptr));
+            list->first->last_char = list->first->last_char->next;
+            list->first->last_char->letter = letter;
+            list->first->last_char->next = NULL;
+        }
+        if (isgraph(prev_letter) && isspace(letter)) {
+            list->first->last_char->next = malloc(sizeof(struct charptr));
+            list->first->last_char = list->first->last_char->next;
+            list->first->last_char->letter = spc;
+            list->first->last_char->next = NULL;
+            spc = ' ';
+            if(letter == '\n') {
+                while (list->first) {
+                    while (list->first->first_char) {
+                        putchar(list->first->first_char->letter);
+                        struct charptr *tmp_ch = list->first->first_char;
+                        list->first->first_char = list->first->first_char->next;
+                        free(tmp_ch);
+                    }
+                    struct wordptr *tmp_w = list->first;
+                    list->first = list->first->next;
+                    free(tmp_w);
+                }
+                free(list);
+                } 
+        }
+        prev_letter = letter;
+        }
     return 0;
 }
