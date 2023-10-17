@@ -22,6 +22,5 @@ struct wordptr {
 };
 
 int max_letter(struct wordptr *ptr);
-void print_vertical(struct listptr *list, int max_count_letter);
 
 #endif
