@@ -1,1 +1,16 @@
+#ignore all
+*
+#unignore all with extensions
+!*.*
+#unignore all dirs
+!*/
+#combination above will ignore all files without extensions
+
+#ignore scripts
+*.sh
+
+#ignore object files(generates)
+*.o
+
+#line below was initially in this repo
 .*.swp
