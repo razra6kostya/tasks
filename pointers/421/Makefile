@@ -1,4 +1,4 @@
-CFLAGS = -g -Wall -D DEBAG_PRINT
+CFLAGS = -g -Wall #-D DEBAG_PRINT
 PROGRAM_NAME = task421
 MOD1 = stack_management
 
