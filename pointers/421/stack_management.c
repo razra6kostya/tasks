@@ -1,8 +1,17 @@
 #include "stack_management.h"
 
-struct stack *stackdbl_init()
+#define STACK_SIZE 6
+#define MUL_SIZE 2
+
+struct stack {
+    double *data;      // array numbers
+    int size;          // size array 
+    int top;           // pointer to top of stack
+};
+
+Stack stackdbl_init()
 {
-    struct stack *st = NULL;
+    Stack st = NULL;
     st = malloc(sizeof(struct stack));
     st->size = STACK_SIZE;
     st->top = 0;
@@ -10,19 +19,19 @@ struct stack *stackdbl_init()
     return st;
 }
 
-void stackdbl_destroy(struct stack *st)
+void stackdbl_destroy(Stack st)
 {
     free(st->data);
     free(st);
     st = NULL;
 }
 
-int stackdbl_empty(struct stack *st)
+int stackdbl_empty(Stack st)
 {
     return st->top == 0;
 }
 
-struct stack *stackdbl_resize(struct stack *st)
+Stack stackdbl_resize(Stack st)
 {
     int i;
     double *tmp = malloc(st->size * sizeof(double));
@@ -39,7 +48,7 @@ struct stack *stackdbl_resize(struct stack *st)
     return st;
 }
 
-int stackdbl_push(struct stack *st, double n)
+int stackdbl_push(Stack st, double n)
 {
     if(st->size - 1 == st->top) {
         st = stackdbl_resize(st);
@@ -48,7 +57,7 @@ int stackdbl_push(struct stack *st, double n)
     return 0;
 }
 
-double stackdbl_pop(struct stack *st)
+double stackdbl_pop(Stack st)
 {
     if(!stackdbl_empty(st)) {
         return st->data[--st->top];

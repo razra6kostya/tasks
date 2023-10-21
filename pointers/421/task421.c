@@ -6,7 +6,7 @@ int main()
 {
     int i;
     double n;
-    struct stack *stack = stackdbl_init();
+    Stack stack = stackdbl_init();
     for (i = 1; i < 10; i++) {
         stackdbl_push(stack, sin(i));
     }
