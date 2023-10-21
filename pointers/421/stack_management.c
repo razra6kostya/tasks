@@ -45,6 +45,29 @@ Stack stackdbl_resize(Stack st)
         st->data[i] = tmp[i];
     }
     free(tmp);
+#ifdef DEBAG_PRINT
+    printf("resize: %d\n", st->size);
+#endif
+    return st;
+}
+
+Stack stackdbl_reducesize(Stack st)
+{
+    int i;
+    st->size /= MUL_SIZE;
+    double *tmp = malloc(st->size * sizeof(double));
+    for (i = 0; i <= st->top; i++) {
+        tmp[i] = st->data[i];
+    }
+    free(st->data);
+    st->data = malloc(st->size * sizeof(double));
+    for (i = 0; i <= st->top; i++) {
+        st->data[i] = tmp[i];
+    }
+    free(tmp);
+#ifdef DEBAG_PRINT
+    printf("reduce size: %d\n", st->size);
+#endif
     return st;
 }
 
@@ -60,6 +83,12 @@ int stackdbl_push(Stack st, double n)
 double stackdbl_pop(Stack st)
 {
     if(!stackdbl_empty(st)) {
+        if(st->size >= (st->top + 1) * MUL_SIZE) {
+#ifdef DEBAG_PRINT
+    printf("check size: %d\n", st->size);
+#endif
+            st = stackdbl_reducesize(st);
+        }
         return st->data[--st->top];
     }
     return 0;

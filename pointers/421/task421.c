@@ -7,7 +7,7 @@ int main()
     int i;
     double n;
     Stack stack = stackdbl_init();
-    for (i = 1; i < 10; i++) {
+    for (i = 1; i < 300; i++) {
         stackdbl_push(stack, sin(i));
     }
     while ((n = stackdbl_pop(stack))) {
