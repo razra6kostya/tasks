@@ -9,3 +9,6 @@
 #ignore object files(generates)
 *.o
 *.swp
+
+#unignore Makefiles
+!Makefile
