@@ -11,67 +11,71 @@ int main(int argc, char **argv)
     int fd;
     unsigned char *buffer;
     int bytes_written;
+    char *endptr;
+    long long start_position, length;
+    unsigned char byte_value;
 
     const char* filename = argv[1];
-    long start_position = atol(argv[2]);
-    long length = atol(argv[3]);
-    unsigned char byte_value = atol(argv[4]);
-
     const char *usage_message =
         "Usage: %s <filename> <start_position> <length> <byte_value>\n";
-    const char *invalid_args_message =
-        "Error: Invalid arguments. start_position and length must be "
-        "non-negative. byte_value must be between 0 and 255.\n";
 
-    if (argc != 5) {
-        fprintf(stderr, usage_message, argv[0]);
+    start_position = strtoll(argv[2], &endptr, 10);
+    if (*endptr != '\0' || start_position < 0) {
+        fprintf(stderr, "Invalid start_position: %s\n", argv[2]);
         return 1;
     }
-    if (start_position < 0 || length < 0 || 
-        byte_value < 0 || byte_value > 255) {
-        fprintf(stderr, invalid_args_message); 
+    length = strtol(argv[3], &endptr, 10); 
+    if (*endptr != '\0' || length < 0) {
+        fprintf(stderr, "Invalid length: %s\n", argv[3]);
         return 2;
+    }
+    byte_value = strtol(argv[4], &endptr, 10); 
+    if (*endptr != '\0' || byte_value < 0 || byte_value > 255) {
+        fprintf(stderr, "Invalid byte_value: %s (must be 0-255)\n", argv[4]);
+        return 3;
+    }
+    if (argc != 5) {
+        fprintf(stderr, usage_message, argv[0]);
+        return 4;
     }
     fd = open(filename, O_RDWR | O_CREAT, 0666); 
     if (fd == -1) {
         perror(filename);
-        return 3;
+        return 5;
     }
     if (lseek(fd, start_position, SEEK_SET) == -1) {
         perror("Error seeking to position");
         close(fd);
-        return 4;
+        return 6;
     }
         if (length == 0) {
         close(fd);
         return 0;
     }
 
+    buffer = (unsigned char *)malloc(BLOCK_SIZE);
+    if (buffer == NULL) {
+        perror("Error allocating buffer"); 
+        close(fd);
+        return 7;
+    }
+
+    memset(buffer, byte_value, BLOCK_SIZE);
     if (length >= BLOCK_SIZE) {
-        buffer = (unsigned char *)malloc(BLOCK_SIZE);
-        if (buffer == NULL) {
-            perror("Error allocating buffer"); 
-            close(fd);
-            return 5;
-        }
-        memset(buffer, byte_value, BLOCK_SIZE);
         bytes_written = 0;
-        while (BLOCK_SIZE < length) {
+        while (BLOCK_SIZE <= length) {
             bytes_written = write(fd, buffer, BLOCK_SIZE);
             length -= bytes_written;
-            // onse again
         }
-        free(buffer);
     }
     if (length > 0) {
-        buffer = (unsigned char *)malloc(length);
-        memset(buffer, byte_value, length);
         bytes_written = write(fd, buffer, length);
+
         if (bytes_written < 0) {
             perror("Error writing to file");
             free(buffer);
             close(fd);
-            return 6;
+            return 8;
         }
     }
     free(buffer);
