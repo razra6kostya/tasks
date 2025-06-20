@@ -1,1 +1,0 @@
-test_data/single_pos_2.bin:1:1:1

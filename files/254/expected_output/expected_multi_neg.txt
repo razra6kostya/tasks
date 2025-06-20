@@ -1,1 +1,0 @@
-test_data/multi_neg.bin:5:-8:-1
