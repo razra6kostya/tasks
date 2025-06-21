@@ -1,7 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "word_pointer.h"
+
+struct listptr {
+    struct wordptr *first;
+};
+
+struct charptr {
+    char letter;
+    struct charptr *next;
+};
+
+struct wordptr {
+    struct charptr *first_char;
+    struct charptr *last_char;
+    struct wordptr *next;
+};
 
 int main()
 {
