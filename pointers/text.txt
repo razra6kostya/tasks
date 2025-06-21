@@ -1,0 +1,455 @@
+2.40 Напиши программу, которая читает из потока стандартного ввода числа типа long, пока не возникает ситуация "конец файла"; после этого печатает те из них, которые встретились в пользовательском вводе ровно три раза. Числа должны быть напечатаны в том порядке, в котором встретились в пользовательском вводе в первый раз.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "num_work.h"
+
+struct num_list *is_num_list(long n, struct num_list *ptr)
+{
+    while (ptr) {
+        if (ptr->data == n) {
+            return ptr;
+        }
+        ptr = ptr->next;
+    }
+    return NULL;
+}
+
+struct num_list *add_num_list(long n, struct num_list *last)
+{
+    if (!last) {
+        last = malloc(sizeof(struct num_list)); 
+    } else {
+        last->next = malloc(sizeof(struct num_list)); 
+        last = last->next;
+    }
+    last->data = n;
+    last->count = 1;
+    last->next = NULL;
+    return last;
+}
+
+void show_num_list(struct num_list *ptr)
+{
+    int print_check = 0;
+    while (ptr) {
+        if(ptr->count == 3) {
+            printf("[%ld]%s", ptr->data, " ");         
+            print_check++;
+        }
+        ptr = ptr->next;
+    }
+    if(print_check) { 
+        printf("\n");         
+    }
+}
+
+void clearup(struct num_list *ptr)
+{
+    struct num_list *tmp;
+    while(ptr) {
+        tmp = ptr;
+        ptr = ptr->next;
+        free(tmp);
+    }
+}
+#ifndef NUM_WORK
+
+#define NUM_WORK 
+struct num_list {
+    long data;
+    int count;
+    struct num_list *next;
+};
+
+struct num_list *is_num_list(long n, struct num_list *ptr);
+struct num_list *add_num_list(long n, struct num_list *last);
+void show_num_list(struct num_list *ptr);
+void clearup(struct num_list *ptr);
+
+#endif
+
+#include <stdio.h>
+#include "num_work.h"
+
+int main()
+{
+    struct num_list *first, *ptr, *last;
+    first = last = ptr = NULL;
+    long res = 0;
+    int i;
+    while((i = getchar()) != EOF) {
+        if(i >= '0' && i <= '9') {
+            res = res * 10 + i - '0';
+        } else {
+            if (first && (ptr = is_num_list(res, first))) {
+                ptr->count++;
+            } else {
+                last = add_num_list(res, last);
+                if (!first) {
+                    first = last;
+                }
+            }
+            res = 0;
+        }
+    }
+    show_num_list(first);
+    clearup(first);
+    return 0;
+}
+
+
+2.42 Напишите программу, которая читает из стандартного потока ввода строки, состоящие из слов (слова могут разделяться произвольными группами пробельных символов), и в ответ на каждую прочитанную строку печатает слова из этой строки В ОБРАТНОМ ПОРЯДКЕ; например, в ответ на фразу "Hympty Dumpty sat on a wall" должно быть напечатано "wall a on sat Dumpty Hympty". Вводить ограничения на длины строк, слов и ДР. нельзя. Вся выделенная динамическая память должна быть корректно освобождена сразу после обработки очередной строки.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include "word_pointer.h"
+
+int main()
+{
+    int c;
+    char letter, prev_letter = '\n', spc = '\n';
+    struct listptr *list = NULL;
+    /* filling list text */ 
+    while ((c = getchar()) != EOF) {
+        letter = (char)c;
+        /* begin word*/
+        if (isspace(prev_letter) && isgraph(letter)) {
+            /* begin string */
+            if (prev_letter == '\n') {
+                list = malloc(sizeof(struct listptr));
+                list->first = NULL;
+                spc = '\n';
+            }
+            struct wordptr *tmp = malloc(sizeof(struct wordptr));
+            tmp->first_char = tmp->last_char = NULL;
+            tmp->next = list->first;
+            list->first = tmp;
+                
+            list->first->first_char = malloc(sizeof(struct charptr));
+            list->first->first_char->letter = letter;
+            list->first->first_char->next= NULL;
+            list->first->last_char = list->first->first_char;
+        }
+        if (isgraph(prev_letter) && isgraph(letter)) {
+            list->first->last_char->next = malloc(sizeof(struct charptr));
+            list->first->last_char = list->first->last_char->next;
+            list->first->last_char->letter = letter;
+            list->first->last_char->next = NULL;
+        }
+        if (isgraph(prev_letter) && isspace(letter)) {
+            list->first->last_char->next = malloc(sizeof(struct charptr));
+            list->first->last_char = list->first->last_char->next;
+            list->first->last_char->letter = spc;
+            list->first->last_char->next = NULL;
+            spc = ' ';
+            if(letter == '\n') {
+                while (list->first) {
+                    while (list->first->first_char) {
+                        putchar(list->first->first_char->letter);
+                        struct charptr *tmp_ch = list->first->first_char;
+                        list->first->first_char = list->first->first_char->next;
+                        free(tmp_ch);
+                    }
+                    struct wordptr *tmp_w = list->first;
+                    list->first = list->first->next;
+                    free(tmp_w);
+                }
+                free(list);
+                } 
+        }
+        prev_letter = letter;
+        }
+    return 0;
+}
+
+#include "word_pointer.h"
+#ifndef WORD_POINTER
+#define WORD_POINTER
+
+struct listptr {
+    struct wordptr *first;
+};
+
+struct charptr {
+    char letter;
+    struct charptr *next;
+};
+
+struct wordptr {
+    struct charptr *first_char;
+    struct charptr *last_char;
+    struct wordptr *next;
+};
+
+#endif
+
+
+2.43 Напишите программу, которая читает из стандартного потока ввода строки, состоящие из слов (слова могут разделяться произвольными группами пробельных символов), и в ответ на каждую прочитанную строку печатает слова из этой строки "вертикально", то есть сначала печатает первые буквы всех слов, переводит строку, печатает вторые буквы слов и т.д., пока буквы во всех словах не кончатся. Для слов, которые короче других, вместо недостающих букв нужно выводить пробелы. Например, в ответ на фразу "Happy New Year to everyone " должно быть напечатано:
+HNYte
+aeeov
+pwa e
+p r r
+y   y
+    y
+    o
+    n
+    e
+Вводить ограничения на длины строк, слов и др. нельзя. Вся выделенная динамическая память должна быть корректно освобождена сразу после обработки очередной строки.
+
+#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include "word_pointer.h"
+
+int main()
+{
+    int c;
+    char letter, prev_letter = '\n';
+    struct listptr *list = NULL;
+    /* filling list text */ 
+    while ((c = getchar()) != EOF) {
+        letter = (char)c;
+        /* word begin */
+        if (isspace(prev_letter) && isgraph(letter)) {
+            /* first word on line */
+            if (prev_letter == '\n' && isgraph(letter)) {
+                list = malloc(sizeof(struct listptr));
+                list->first = NULL;
+            }
+            /* next word*/
+            if (!list->first) {
+                list->first = malloc(sizeof(struct wordptr));
+                list->count_word = 0;
+                list->last = list->first;
+            } else {
+                list->last->next = malloc(sizeof(struct wordptr));
+                list->last = list->last->next;
+            }
+            list->count_word++;
+            list->last->count_letter = 1;
+            list->last->first_char = malloc(sizeof(struct charptr));
+            list->last->first_char->letter = letter;
+            list->last->first_char->next= NULL;
+            list->last->last_char = list->last->first_char;
+            list->last->next = NULL;
+        }
+        /* continues enter word */
+        if (isgraph(prev_letter) && isgraph(letter)) {
+            list->last->count_letter++;
+            list->last->last_char->next = malloc(sizeof(struct charptr));
+            list->last->last_char = list->last->last_char->next;
+            list->last->last_char->letter = letter;
+            list->last->last_char->next = NULL;
+        }
+        /* line end */
+        if (isgraph(prev_letter) && letter == '\n') {
+            /* search long word */
+            int max_count_letter = max_letter(list->first);
+            /* print */
+            int i, j;
+            for (i=0; i<max_count_letter; i++) {
+                struct wordptr *target_word = list->first;
+                for(j=0; j<list->count_word; j++){
+                        if (target_word->first_char) {
+                            /* print and delete letter */
+                            struct charptr **pp = &target_word->first_char;
+                            struct charptr *del_ch = target_word->first_char;
+                            putchar(target_word->first_char->letter);
+                            *pp = (*pp)->next;
+                            free(del_ch);
+                        } else {
+                            putchar(32);
+                        }
+                        target_word = target_word->next;
+                }
+                putchar(10);
+    	    }
+            /* cleanup */
+            while (list->first) {
+                struct wordptr *tmp = list->first;
+                list->first = list->first->next;
+                free(tmp);
+            }
+            free(list);
+            list = NULL;
+        }
+        prev_letter = letter;
+    }
+    return 0;
+}
+
+#include "word_pointer.h"
+
+int max_letter(struct wordptr *tmp_word) 
+{
+    int max = 0;
+    while (tmp_word) {
+        if (tmp_word->count_letter > max) {
+            max = tmp_word->count_letter;
+        }
+        tmp_word= tmp_word->next;
+    }
+    return max;
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#ifndef WORD_POINTER
+#define WORD_POINTER
+
+struct listptr {
+    struct wordptr *first;
+    struct wordptr *last;
+    int count_word;
+};
+
+struct charptr {
+    char letter;
+    struct charptr *next;
+};
+
+struct wordptr {
+    struct charptr *first_char;
+    struct charptr *last_char;
+    int count_letter;
+    struct wordptr *next;
+};
+
+int max_letter(struct wordptr *ptr);
+
+#endif
+
+4.21 Реализуйте абстракцию стека чисел типа double, используя в качестве реализации массив, размер которого (при исчерпании свободного места) увеличивается вдвое. Для этого напишите функции stackdbl_init, stackdbl_destroy, stackdbl_push, stackdbl_pop и stackdbl_empty соответственно для инициализации стека, освобождения памяти от стека, занесения числа в стек, извлечение числа из стека и проверки, не пуст ли стек. Все переменные, нужные для обслуживания стека, объедините в структуру, а в функции передавайте адрес этой структуры.
+#include "stack_management.h"
+
+#define STACK_SIZE 6
+#define MUL_SIZE 2
+
+struct stack {
+    double *data;      // array numbers
+    int size;          // size array 
+    int top;           // pointer to top of stack
+};
+
+Stack stackdbl_init()
+{
+    Stack st = NULL;
+    st = malloc(sizeof(struct stack));
+    st->size = STACK_SIZE;
+    st->top = 0;
+    st->data = malloc(st->size * sizeof(double));
+    return st;
+}
+
+void stackdbl_destroy(Stack st)
+{
+    free(st->data);
+    free(st);
+    st = NULL;
+}
+
+int stackdbl_empty(Stack st)
+{
+    return st->top == 0;
+}
+
+Stack stackdbl_resize(Stack st)
+{
+    int i;
+    double *tmp = malloc(st->size * sizeof(double));
+    for (i = 0; i <= st->top; i++) {
+        tmp[i] = st->data[i];
+    }
+    free(st->data);
+    st->size *= MUL_SIZE;
+    st->data = malloc(st->size * sizeof(double));
+    for (i = 0; i <= st->top; i++) {
+        st->data[i] = tmp[i];
+    }
+    free(tmp);
+#ifdef DEBAG_PRINT
+    printf("resize: %d\n", st->size);
+#endif
+    return st;
+}
+
+Stack stackdbl_reducesize(Stack st)
+{
+    int i;
+    st->size /= MUL_SIZE;
+    double *tmp = malloc(st->size * sizeof(double));
+    for (i = 0; i <= st->top; i++) {
+        tmp[i] = st->data[i];
+    }
+    free(st->data);
+    st->data = malloc(st->size * sizeof(double));
+    for (i = 0; i <= st->top; i++) {
+        st->data[i] = tmp[i];
+    }
+    free(tmp);
+#ifdef DEBAG_PRINT
+    printf("reduce size: %d\n", st->size);
+#endif
+    return st;
+}
+
+int stackdbl_push(Stack st, double n)
+{
+    if(st->size - 1 == st->top) {
+        st = stackdbl_resize(st);
+    }
+    st->data[st->top++] = n;
+    return 0;
+}
+
+double stackdbl_pop(Stack st)
+{
+    if(!stackdbl_empty(st)) {
+        if(st->size >= (st->top + 1) * MUL_SIZE) {
+#ifdef DEBAG_PRINT
+    printf("check size: %d\n", st->size);
+#endif
+            st = stackdbl_reducesize(st);
+        }
+        return st->data[--st->top];
+    }
+    return 0;
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#ifndef STACK_MANAGEMENT
+#define STACK_MANAGEMENT
+
+typedef struct stack *Stack;
+
+Stack stackdbl_init();
+void stackdbl_destroy(Stack);
+int stackdbl_empty(Stack);
+Stack stackdbl_resize(Stack);
+Stack stackdbl_reducesize(Stack);
+int stackdbl_push(Stack, double);
+double stackdbl_pop(Stack);
+
+#endif
+
+#include <stdio.h>
+#include <math.h>
+#include "stack_management.h"
+
+int main()
+{
+    int i;
+    double n;
+    Stack stack = stackdbl_init();
+    for (i = 1; i < 30; i++) {
+        stackdbl_push(stack, sin(i));
+    }
+    while ((n = stackdbl_pop(stack))) {
+        printf("%g\n", n);
+    }
+    stackdbl_destroy(stack);
+    return 0;
+}
