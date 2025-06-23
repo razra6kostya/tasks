@@ -26,12 +26,12 @@ void stackdbl_destroy(Stack st)
     st = NULL;
 }
 
-int stackdbl_empty(Stack st)
+static int stackdbl_empty(Stack st)
 {
     return st->top == 0;
 }
 
-Stack stackdbl_resize(Stack st)
+static Stack stackdbl_resize(Stack st)
 {
     int i;
     double *tmp = malloc(st->size * sizeof(double));
@@ -51,7 +51,7 @@ Stack stackdbl_resize(Stack st)
     return st;
 }
 
-Stack stackdbl_reducesize(Stack st)
+static Stack stackdbl_reducesize(Stack st)
 {
     int i;
     st->size /= MUL_SIZE;
