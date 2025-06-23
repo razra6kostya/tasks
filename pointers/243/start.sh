@@ -1,7 +1,6 @@
 #!/bin/sh
 
+gcc -g -Wall task243.c -o task243
 if [ -f "task243" ]; then
-    make clean
+    ./task243 < text.txt
 fi
-make run
-./task243 < text.txt

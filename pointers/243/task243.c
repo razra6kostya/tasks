@@ -1,7 +1,36 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include "word_pointer.h"
+
+struct listptr {
+    struct wordptr *first;
+    struct wordptr *last;
+    int count_word;
+};
+
+struct charptr {
+    char letter;
+    struct charptr *next;
+};
+
+struct wordptr {
+    struct charptr *first_char;
+    struct charptr *last_char;
+    int count_letter;
+    struct wordptr *next;
+};
+
+int max_letter(struct wordptr *tmp_word) 
+{
+    int max = 0;
+    while (tmp_word) {
+        if (tmp_word->count_letter > max) {
+            max = tmp_word->count_letter;
+        }
+        tmp_word= tmp_word->next;
+    }
+    return max;
+}
 
 int main()
 {
