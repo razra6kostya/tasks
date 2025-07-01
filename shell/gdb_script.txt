@@ -1,0 +1,3 @@
+break progress_space 
+
+run <<< "hello    "
