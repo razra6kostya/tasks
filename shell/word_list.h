@@ -1,17 +1,17 @@
 #ifndef WORD_LIST 
 #define WORD_LIST
 
-typedef enum mode {
-    NORMAL,
-    INSIDE
-} Mode;
-
 enum { DEF_WORD_BUF_SIZE = 10 };
 
 typedef struct word_item {
     char *word;
     struct word_item *next;
 } Word_item;
+
+typedef enum mode {
+    NORMAL,
+    INSIDE
+} Mode;
 
 typedef struct analysis_mode {
     Mode mode;
