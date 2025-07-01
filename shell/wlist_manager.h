@@ -1,7 +1,7 @@
+#include "word_list.h"
 #ifndef WLIST_MANAGER 
 #define WLIST_MANAGER
 
-typedef struct word_list Word_list;
 
 Word_list *init_list();
 void free_word_list(Word_list *wlst);
