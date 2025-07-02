@@ -61,5 +61,6 @@ int exec_cmd(Word_item *word_item)
     cmdline[i] = NULL;
     printf("CMD: %s\n", cmdline[i]);
     wait_procces(fork_and_exe(cmdline));
+    free(cmdline);
     return 0;
 }

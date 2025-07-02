@@ -1,8 +1,3 @@
-  abra      schwabra         kadabra
-abra schwabra kadabra"  foo bar
-abra schwabra kadabra
-abra "schwabra kadabra" "foo   bar"
-abra schw"abra ka"dab"ra" foo"   "bar
-"           "
-
-dd
+ls -l
+cat text.txt
+ls -l -R

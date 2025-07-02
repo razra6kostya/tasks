@@ -12,8 +12,12 @@ int main()
     while ((ch = getchar()) != EOF) {
         get_character_to_word(word_list, ch);
         if (ch == '\n') {
-            word_item_list = word_list->first_item;
-            exec_cmd(word_item_list);
+            if (word_list->anal_mode->quote_count % 2 == 0) { 
+                word_item_list = word_list->first_item;
+                exec_cmd(word_item_list);
+            } else {
+                fprintf(stdout, "Error: unmatched quotes\n");
+            }
             free_word_list(word_list);
             word_list = init_list();
         }

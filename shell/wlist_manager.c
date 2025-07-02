@@ -5,6 +5,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#define UNMATH_QUOTE 2;
+
 static Analysis_mode *init_analysis_mode()
 {
     Analysis_mode *a_mode = malloc(sizeof(Analysis_mode));
@@ -67,6 +69,7 @@ static void free_item(Word_item *first_item)
 
 void free_word_list(Word_list *wlst)
 {
+    printf("FREE\n");
     free(wlst->buf_word->b_word);
     wlst->buf_word->b_word = NULL;
     free(wlst->buf_word);
@@ -84,16 +87,6 @@ static void print_list(Word_item *first_item)
     while (first_item) {
         printf("[%s]\n", first_item->word);
         first_item = first_item->next;
-    }
-}
-
-static void handle_line_feed(Word_list *wlst, char ch) {
-    if (ch == '\n') {
-        if (wlst->anal_mode->quote_count % 2 != 0) {
-            fprintf(stdout, "Error: unmatched quotes\n");
-        } else {
-            print_list(wlst->first_item); 
-        }
     }
 }
 
@@ -174,12 +167,10 @@ static int handle_end_word(Word_list *wlst, const int ch)
                 }
             }
             finalize_word(wlst);
-            handle_line_feed(wlst, ch);
             return 1; 
         case INSIDE:
             if (ch == '\n') {
                 finalize_word(wlst);
-                handle_line_feed(wlst, ch);
                 return 1;
             }
             wlst->buf_word->b_word[wlst->buf_word->lenght_word] = ch;
