@@ -1,5 +1,5 @@
-#ifndef WORD_LIST 
-#define WORD_LIST
+#ifndef STRUCT_DATA 
+#define STRUCT_DATA
 
 enum { DEF_WORD_BUF_SIZE = 10 };
 
@@ -31,5 +31,9 @@ typedef struct word_list  {
     Buf_word_for_list *buf_word;
     Analysis_mode *anal_mode;
 } Word_list;
+
+
+Word_list *init_list();
+Word_list *free_word_list(Word_list *wlst);
 
 #endif

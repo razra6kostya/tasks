@@ -1,5 +1,5 @@
-#include "cmd_manager.h"
-#include "word_list.h"
+#include "run_cmd.h"
+#include "struct_data.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
