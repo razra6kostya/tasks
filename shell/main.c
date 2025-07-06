@@ -16,7 +16,7 @@ int main()
         }
         get_character_to_word(word_list, ch);
         if (ch == '\n') {
-            if (word_list->anal_mode->quote_count % 2 == 0) { 
+            if (quote_count(word_list)) {
                 cmdlist = word_list->first_item;
                 exec_cmd(cmdlist);
             } else {

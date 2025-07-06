@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "struct_data.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -114,4 +115,9 @@ void get_character_to_word(Word_list *wlst, const int ch)
     wlst->buf_word->b_word[wlst->buf_word->lenght_word] = ch;
     wlst->buf_word->lenght_word++;
     wlst->buf_word->prev_ch = ch;
+}
+
+int quote_count(Word_list *wlst)
+{
+    return wlst->anal_mode->quote_count % 2 == 0;
 }
