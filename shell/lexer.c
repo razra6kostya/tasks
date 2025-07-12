@@ -43,15 +43,6 @@ Token *get_next_token()
     return create_token(TOKEN_ERROR, "Unknowd Error\n");
 }
 
-
-
-
-
-
-
-
-
-
 static Mode change_anal_mode(Mode mode)
 {
     return mode == NORMAL ? INSIDE : NORMAL;
