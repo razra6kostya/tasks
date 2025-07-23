@@ -104,7 +104,11 @@ void repl_loop() {
         print_ast(ast);
         printf("------------------\n");
 
-        // TODO: Command execution will go here (executor)
+        int exit_status = execute_ast(ast); // Execute the parsed command
+        if (exit_status != 0) {
+            // Handle execution errors if necessary
+            // For now, perror is called inside execute_simple_command
+        }
 
         free_ast(ast); // Free the entire AST after use
         ast = NULL;    // Nullify the pointer

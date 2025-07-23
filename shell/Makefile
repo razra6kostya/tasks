@@ -10,7 +10,7 @@ CFLAGS = -Wall -Wextra -std=c11 -g
 TARGET = shell
 
 # List of all source .c files
-SRCS = main.c lexer.c parser.c mem_utils.c utils.c
+SRCS = main.c lexer.c parser.c mem_utils.c utils.c executor.c
 
 # List of all object .o files (automatically generated from SRCS)
 OBJS = $(SRCS:.c=.o)
