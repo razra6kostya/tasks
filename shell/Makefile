@@ -1,15 +1,33 @@
 CC = gcc
-CFLAGS = -g -Wall 
-#-fsanitize=address
+CFLAGS = -Wall -Wextra -std=c11 -g
+# -Wall: Enable all common warnings
+# -Wextra: Enable extra warnings
+# -Werror: Treat warnings as errors
+# -std=c11: Use C11 standard
+# -g: Include debugging information (for valgrind and GDB)
 
-struct_data.o: struct_data.c struct_data.h
+# Executable name
+TARGET = shell
+
+# List of all source .c files
+SRCS = main.c lexer.c parser.c mem_utils.c utils.c
+
+# List of all object .o files (automatically generated from SRCS)
+OBJS = $(SRCS:.c=.o)
+
+.PHONY: all clean
+
+# Default rule: builds everything and creates the executable
+all: $(TARGET)
+
+# Rule for building the executable
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) -o $(TARGET)
+
+# Rule for compiling each .c file into a .o file
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-lexer.o: lexer.c lexer.h
-	$(CC) $(CFLAGS) -c $< -o $@
-
-run_cmd.o: run_cmd.c run_cmd.h
-	$(CC) $(CFLAGS) -c $< -o $@
-
-prog: main.c struct_data.o lexer.o run_cmd.o
-	$(CC) $(CFLAGS) $^ -o $@
+# Rule for cleaning the project (removes object files and executable)
+clean:
+	rm -f $(OBJS) $(TARGET)

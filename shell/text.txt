@@ -1,3 +1,1 @@
-ls -l
-cat text.txt
-ls -l -R
+pwd le cat

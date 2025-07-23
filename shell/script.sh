@@ -1,3 +1,3 @@
 #!/bin/sh
 
-gdb -x gdb_script.txt ./prog
+gdb -ex "b main" -ex "run < text.txt" --args ./shell

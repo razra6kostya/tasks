@@ -1,158 +1,168 @@
 #include "lexer.h"
-#include "struct_data.h"
-#include <stddef.h>
+#include "mem_utils.h"
+
+#include <stdbool.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
-#define UNMATH_QUOTE 2;
+static int current_char = -1;
+static bool unclosed_quotes_error = false;
 
-typedef enum {
-    TOKEN_WORD,           // "ls", "-l", "file.txt"
-    TOKEN_PIPE,           // '|'
-    TOKEN_REDIRECT_IN,    // '<'
-    TOKEN_REDIRECT_OUT,   // '>'
-    TOKEN_DOUBLE_REDIRECT_OUT, // '>>'
-    TOKEN_SEMICOLON,      // ';'
-    TOKEN_AMPERSAND,      // '&'
-    TOKEN_LOGICAL_AND,    // '&&'
-    TOKEN_LOGICAL_OR,     // '||'
-    TOKEN_LPAREN,         // '('
-    TOKEN_RPAREN,         // ')'
-    TOKEN_ERROR,          // Error lexical  analysis
-    TOKEN_EOF,            // End of file
-    TOKEN_EOL             // "\n"
-} token_type;
-
-typedef struct {
-    token_type type;
-    char *value;
-} Token;
-
-Token *create_token(token_type type, const char *value)
+static int read_char()
 {
-    Token *token = (Token *)malloc(sizeof(Token));
+    current_char = fgetc(stdin);
+    return current_char;
+}
+
+static void skip_whitespace()
+{
+    while (current_char != EOF && current_char != '\n' && isspace(current_char)) {
+        read_char();
+    }
+}
+
+static Token *create_token(TokenType type, const char *value) {
+    Token *token = (Token *)safe_malloc(sizeof(Token));
     token->type = type;
-    token->value = (value != NULL) ? strdup(value) : NULL;
+    token->value = (value != NULL) ? safe_strdup(value) : NULL;
     return token;
+}
+
+void lexer_init()
+{
+    if (current_char == -1) {
+        read_char();
+    }
+    unclosed_quotes_error = false;
+
+    // Debug:
+    printf("[DEBUG] Lexer: lexer_init finished. current_char: '%c' (0x%x)\n",
+           current_char == EOF ? 'E' : (current_char == '\n' ? 'N' : current_char), current_char);
 }
 
 Token *get_next_token()
 {
-    return create_token(TOKEN_ERROR, "Unknowd Error\n");
-}
-
-static Mode change_anal_mode(Mode mode)
-{
-    return mode == NORMAL ? INSIDE : NORMAL;
-}
-
-static int switching_mode(Analysis_mode *a_mode, const int ch)
-{
-    if (ch == '"') {
-        a_mode->mode = 
-            change_anal_mode(a_mode->mode);
-        a_mode->quote_count++;
-        return 1;
-    } 
-    return 0;
-}
-
-static int buf_is_full(Buf_word_for_list *wfl)
-{
-    return wfl->cap_len_word - 1 == 
-        wfl->lenght_word;
-}
-
-static void increase_word_buffer(Buf_word_for_list *wfl)
-{
-    if(buf_is_full(wfl)) {
-        wfl->cap_len_word *= 2;
-        char *new_word = 
-            realloc(wfl->b_word, wfl->cap_len_word);
-        if (!new_word) {
-            free(wfl->b_word);
-            return;
-        }
-        wfl->b_word =  new_word;
+    // Reset unclosed quotes error flag at the beginning of a new line or EOF
+    if (current_char == '\n' || current_char == EOF) {
+        unclosed_quotes_error = false;
     }
-}
 
-static void add_word_in_list(Word_list *wlst)
-{
-    if (wlst->first_item == NULL) {
-        wlst->first_item = malloc(sizeof(Word_item));
-        wlst->last_item = wlst->first_item;
-    } else {
-        wlst->last_item->next = malloc(sizeof(Word_item));
-        wlst->last_item = wlst->last_item->next;
+    // Debug: Char before skip_whitespace
+    printf("[DEBUG] Lexer: get_next_token starting. current_char before skip_whitespace: '%c' (0x%x)\n",
+           current_char == EOF ? 'E' : (current_char == '\n' ? 'N' : current_char), current_char);
+
+    skip_whitespace();
+
+    if (current_char == '\n') {
+        //read_char(); // Consume the newline
+        printf("[DEBUG] Lexer: Returning TOKEN_EOL.\n");
+        return create_token(TOKEN_EOL, NULL);
     }
-    wlst->last_item->word = strdup(wlst->buf_word->b_word);
-    wlst->last_item->next = NULL; 
-}
-
-static void finalize_word(Word_list *wlst)
-{
-    wlst->buf_word->b_word[wlst->buf_word->lenght_word] = '\0';
-    add_word_in_list(wlst);
-    wlst->buf_word->lenght_word = 0;
-}
-
-static int progress_space(const int prev_ch, const int ch)
-{
-    return isspace(prev_ch) && isspace(ch);
-}
+    if (current_char == EOF) {
+        printf("[DEBUG] Lexer: Returning TOKEN_EOF.\n");
+        return create_token(TOKEN_EOF, NULL);
+    }
     
-static int handle_end_word(Word_list *wlst, const int ch) 
-{
-    if (isspace(ch)) {
-        switch (wlst->anal_mode->mode) {
-        case NORMAL:
-            if (progress_space(wlst->buf_word->prev_ch, ch)) {
-                /* this word after INSIDE mode */
-                if (wlst->buf_word->lenght_word > 0) {
-                    if (wlst->buf_word->b_word[wlst->buf_word->lenght_word - 1] == ' ') {
-                        ;
-                    }
-                } else {
-                    return 1;
-                }
+    int c = current_char;
+
+    if (c == '|') {
+        read_char();
+        if (current_char == '|') {
+            read_char(); return create_token(TOKEN_LOGICAL_OR, "||");
+        }
+        return create_token(TOKEN_PIPE, "|");
+    } else if (c == '&') {
+        read_char();
+        if (current_char == '&') {
+            read_char(); return create_token(TOKEN_LOGICAL_AND, "&&");
+        }
+        return create_token(TOKEN_AMPERSAND, "&");
+    } else if (c == '>') {
+        read_char();
+        if (current_char == '>') {
+            read_char(); return create_token(TOKEN_DOUBLE_REDIRECT_OUT, ">>");
+        }
+        return create_token(TOKEN_REDIRECT_OUT, ">");
+    } else if (c == '<') {
+        read_char(); return create_token(TOKEN_REDIRECT_IN, "<");
+    } else if (c == ';') {
+        read_char(); return create_token(TOKEN_SEMICOLON, ";");
+    } else if (c == '(') {
+        read_char(); return create_token(TOKEN_LPAREN, "(");
+    } else if (c == ')') {
+        read_char(); return create_token(TOKEN_RPAREN, ")");
+    }
+    
+    char *word_buffer = NULL;
+    int buffer_capacity = 0;
+    int word_len = 0;
+    bool in_quotes = false;
+    int quote_count = 0;
+
+    bool started_with_quote = (c == '"');
+
+    word_buffer = safe_malloc(buffer_capacity);
+
+    while ((current_char != EOF && current_char != '\n')  &&
+        (in_quotes || (!isspace(current_char) && !strchr("|&;><()", current_char)))) {
+
+        c = current_char;
+
+        if (buffer_capacity <= word_len) {
+            buffer_capacity = (buffer_capacity == 0) ? 16 : buffer_capacity * 2;
+            word_buffer = safe_realloc(word_buffer, buffer_capacity);
+        }
+
+        if (c == '\\') {
+            read_char();
+            if (current_char == EOF || current_char == '\n') {
+                word_buffer[word_len++] = '\\';
+                break;
             }
-            finalize_word(wlst);
-            return 1; 
-        case INSIDE:
-            if (ch == '\n') {
-                finalize_word(wlst);
-                return 1;
-            }
-            wlst->buf_word->b_word[wlst->buf_word->lenght_word] = ch;
-            break;
+            word_buffer[word_len++] = current_char;
+        } else if (c == '"') {
+            quote_count++;
+            in_quotes = !in_quotes;
+        } else {
+            word_buffer[word_len++] = c;
+        }
+        read_char();
+
+    }
+    word_buffer[word_len] = '\0';
+
+    if (in_quotes) {
+      unclosed_quotes_error = true;
+      safe_free(word_buffer);
+      return create_token(TOKEN_ERROR, "unclosed quotes");
+    }
+
+    if (started_with_quote && word_len == 0 && quote_count  == 2) {
+        if (isspace(current_char) || current_char == EOF || 
+                current_char == '\n' || strchr("|&;><()", current_char)) {
+            safe_free(word_buffer);
+            return create_token(TOKEN_WORD, "");
         }
     }
-    return 0;
+    printf("[DEBUG] Lexer: Returning TOKEN_WORD '%s'.\n", word_buffer); 
+    Token *tmp = create_token(TOKEN_WORD, word_buffer);
+    safe_free(word_buffer);
+    return tmp;
 }
 
-void get_character_to_word(Word_list *wlst, const int ch)
-{
-    /* ch == '"'*/
-    if (switching_mode(wlst->anal_mode, ch)) 
-        return;
-
-    increase_word_buffer(wlst->buf_word);
-
-    if (handle_end_word(wlst, ch)) {
-        wlst->buf_word->prev_ch = ch;
-        return;
-    }
-
-    /* normal character */
-    wlst->buf_word->b_word[wlst->buf_word->lenght_word] = ch;
-    wlst->buf_word->lenght_word++;
-    wlst->buf_word->prev_ch = ch;
+void free_token(Token *token) {
+    if (token == NULL) return;
+    safe_free(token->value);
+    safe_free(token);        
 }
 
-int quote_count(Word_list *wlst)
-{
-    return wlst->anal_mode->quote_count % 2 == 0;
+void lexer_cleanup() {
+    current_char = -1;
+    unclosed_quotes_error = false;
+}
+
+bool lexer_has_unclosed_quotes() {
+    return unclosed_quotes_error;
 }
